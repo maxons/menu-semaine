@@ -10,6 +10,7 @@ function menuWith(dishIds: (string | null)[]): Menu {
       day,
       dishId: dishIds[index] ?? null,
       forced: false,
+      servings: 2,
     })),
   }
 }
@@ -77,5 +78,22 @@ describe('buildShoppingList', () => {
     const noms = list.map((item) => item.name)
     expect(noms).toContain('Pommes de terre')
     expect(noms).toContain('pates')
+  })
+})
+
+describe('liste de courses et nombre de couverts', () => {
+  it('multiplie les quantités par le nombre de couverts', () => {
+    const menu: Menu = {
+      weekStart: '2025-01-06',
+      meals: DAYS.map((day, index) => ({
+        day,
+        dishId: index === 0 ? 'a' : null,
+        forced: false,
+        servings: 4,
+      })),
+    }
+    const list = buildShoppingList(menu, dishes)
+    const creme = list.find((item) => item.name.toLowerCase().includes('crème'))
+    expect(creme?.quantity).toBe(40)
   })
 })

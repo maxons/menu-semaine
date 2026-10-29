@@ -32,6 +32,7 @@ function menuWith(dishIds: (string | null)[]): Menu {
       day,
       dishId: dishIds[index] ?? null,
       forced: false,
+      servings: 2,
     })),
   }
 }
@@ -81,5 +82,52 @@ describe('budgetAlerts', () => {
     const summary = { total: 0, byMeal: [], averagePerMeal: 0 }
     const alerts = budgetAlerts(summary, 30)
     expect(alerts.some((alert) => alert.type === 'empty')).toBe(true)
+  })
+})
+
+describe('budget et nombre de couverts', () => {
+  it('double le prix pour 4 couverts', () => {
+    const dishes = [dish({ id: 'a' })]
+    const menu: Menu = {
+      weekStart: '2025-01-06',
+      meals: DAYS.map((day, index) => ({
+        day,
+        dishId: index === 0 ? 'a' : null,
+        forced: false,
+        servings: 4,
+      })),
+    }
+    const summary = estimateWeeklyBudget(menu, dishes)
+    expect(summary.total).toBeCloseTo(5)
+  })
+
+  it('garde le prix de base pour 2 couverts', () => {
+    const dishes = [dish({ id: 'a' })]
+    const menu: Menu = {
+      weekStart: '2025-01-06',
+      meals: DAYS.map((day, index) => ({
+        day,
+        dishId: index === 0 ? 'a' : null,
+        forced: false,
+        servings: 2,
+      })),
+    }
+    const summary = estimateWeeklyBudget(menu, dishes)
+    expect(summary.total).toBeCloseTo(2.5)
+  })
+
+  it('moitié du prix pour 1 couvert', () => {
+    const dishes = [dish({ id: 'a' })]
+    const menu: Menu = {
+      weekStart: '2025-01-06',
+      meals: DAYS.map((day, index) => ({
+        day,
+        dishId: index === 0 ? 'a' : null,
+        forced: false,
+        servings: 1,
+      })),
+    }
+    const summary = estimateWeeklyBudget(menu, dishes)
+    expect(summary.total).toBeCloseTo(1.25)
   })
 })

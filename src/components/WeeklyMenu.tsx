@@ -1,4 +1,5 @@
 import { useMenuStore, addWeeks, formatWeekRange } from '../store/menuStore'
+import { estimateDishPrice } from '../core/budget'
 import { DAYS, WEEK_CONSTRAINT_LABELS } from '../core/types'
 import type { WeekConstraint } from '../core/types'
 
@@ -12,6 +13,7 @@ export default function WeeklyMenu() {
   const rerollMeal = useMenuStore((state) => state.rerollMeal)
   const toggleForce = useMenuStore((state) => state.toggleForce)
   const setMealDish = useMenuStore((state) => state.setMealDish)
+  const setMealServings = useMenuStore((state) => state.setMealServings)
   const goToWeek = useMenuStore((state) => state.goToWeek)
   const copyWeekFrom = useMenuStore((state) => state.copyWeekFrom)
 
@@ -79,11 +81,30 @@ export default function WeeklyMenu() {
             <div key={day} className={`meal-card ${meal?.forced ? 'forced' : ''}`}>
               <h3>{day}</h3>
               {dish ? (
-                <span className="dish-name">{dish.name}</span>
+                <>
+                  <span className="dish-name">{dish.name}</span>
+                  <small className="muted">
+                    {estimateDishPrice(dish).toFixed(2)} € / 2 pers. ·{' '}
+                    {((estimateDishPrice(dish) * (meal?.servings ?? 2)) / 2).toFixed(2)} € pour{' '}
+                    {meal?.servings ?? 2} pers.
+                  </small>
+                </>
               ) : (
                 <span className="empty">—</span>
               )}
               <div className="meal-actions">
+                <label className="servings">
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={meal?.servings ?? 2}
+                    onChange={(event) =>
+                      setMealServings(day, Number(event.target.value))
+                    }
+                  />
+                  pers.
+                </label>
                 <select
                   value={meal?.dishId ?? ''}
                   onChange={(event) =>

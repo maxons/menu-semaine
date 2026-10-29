@@ -20,11 +20,15 @@ export function buildShoppingList(menu: Menu, dishes: Dish[]): ShoppingItem[] {
     const dish = dishById.get(meal.dishId)
     if (!dish) continue
 
+    const servings = meal.servings ?? 2
     for (const ingredient of dish.ingredients) {
       const key = normalizeName(ingredient.name)
       const quantity =
         ingredient.quantity !== null && ingredient.unit !== null
-          ? { quantity: ingredient.quantity, unit: ingredient.unit }
+          ? {
+              quantity: ingredient.quantity * (servings / 2),
+              unit: ingredient.unit,
+            }
           : null
       const existing = items.get(key)
       if (!existing) {

@@ -35,7 +35,8 @@ export function estimateWeeklyBudget(menu: Menu, dishes: Dish[]): BudgetSummary 
     if (!meal.dishId) continue
     const dish = dishById.get(meal.dishId)
     if (!dish) continue
-    const price = estimateDishPrice(dish)
+    const servings = meal.servings ?? 2
+    const price = round2(estimateDishPrice(dish) * (servings / 2))
     total += price
     byMeal.push({ dishId: meal.dishId, price })
   }

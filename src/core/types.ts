@@ -60,6 +60,7 @@ export interface Meal {
   day: DayOfWeek
   dishId: string | null
   forced: boolean
+  servings: number
 }
 
 export interface Menu {

@@ -30,7 +30,7 @@ export function formatWeekRange(weekStart: string): string {
 function emptyMenu(weekStart: string): Menu {
   return {
     weekStart,
-    meals: DAYS.map((day) => ({ day, dishId: null, forced: false })),
+    meals: DAYS.map((day) => ({ day, dishId: null, forced: false, servings: 2 })),
   }
 }
 
@@ -53,6 +53,7 @@ interface MenuStore {
   rerollMeal: (day: Meal['day']) => void
   toggleForce: (day: Meal['day']) => void
   setMealDish: (day: Meal['day'], dishId: string) => void
+  setMealServings: (day: Meal['day'], servings: number) => void
 }
 
 const KNOWN_WEEKS_KEY = 'menu-semaine:known-weeks'
@@ -183,7 +184,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
       weekStart: menu.weekStart,
       meals: [
         ...others,
-        { day, dishId: null, forced: false },
+        { day, dishId: null, forced: false, servings: 2 },
       ],
     }
     const [nextMeal] = generateMenu({ dishes, currentMenu: tempMenu, constraint }).meals.filter(
@@ -220,6 +221,17 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const { menu } = get()
     const meals = menu.meals.map((meal) =>
       meal.day === day ? { ...meal, dishId, forced: true } : meal,
+    )
+    const nextMenu = { ...menu, meals }
+    set({ menu: nextMenu })
+    void get().storage.saveMenu(nextMenu)
+  },
+
+  setMealServings: (day, servings) => {
+    const { menu } = get()
+    const value = Math.max(1, Math.min(20, Math.round(servings)))
+    const meals = menu.meals.map((meal) =>
+      meal.day === day ? { ...meal, servings: value } : meal,
     )
     const nextMenu = { ...menu, meals }
     set({ menu: nextMenu })

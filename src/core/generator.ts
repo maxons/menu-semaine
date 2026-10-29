@@ -51,7 +51,7 @@ export function generateMenu(options: GenerateOptions): Menu {
   const meals: Meal[] = DAYS.map((day) => {
     const existing = mealsByDay.get(day)
     if (existing?.forced && existing.dishId) {
-      return { day, dishId: existing.dishId, forced: true }
+      return { day, dishId: existing.dishId, forced: true, servings: existing.servings ?? 2 }
     }
 
     const available = dishes.filter(
@@ -61,7 +61,7 @@ export function generateMenu(options: GenerateOptions): Menu {
         satisfiesHardConstraint(dish, constraint),
     )
     if (available.length === 0) {
-      return { day, dishId: existing?.dishId ?? null, forced: false }
+      return { day, dishId: existing?.dishId ?? null, forced: false, servings: existing?.servings ?? 2 }
     }
 
     const weights = available.map(
@@ -70,7 +70,7 @@ export function generateMenu(options: GenerateOptions): Menu {
     )
     const picked = pickWeighted(available, weights, rng)
     usedDishIds.add(picked.id)
-    return { day, dishId: picked.id, forced: false }
+    return { day, dishId: picked.id, forced: false, servings: existing?.servings ?? 2 }
   })
 
   return { weekStart: currentMenu.weekStart, meals }

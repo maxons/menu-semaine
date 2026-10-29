@@ -346,3 +346,17 @@ input {
   background: #e8f4ff;
   color: #2a6db5;
 }
+
+.servings {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.servings input {
+  width: 3rem;
+  padding: 0.25rem 0.35rem;
+  font-size: 0.8rem;
+}

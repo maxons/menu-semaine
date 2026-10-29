@@ -30,7 +30,7 @@ function makeDish(overrides: Partial<Dish> = {}): Dish {
 function emptyMenu(): Menu {
   return {
     weekStart: '2025-01-06',
-    meals: DAYS.map((day) => ({ day, dishId: null, forced: false })),
+    meals: DAYS.map((day) => ({ day, dishId: null, forced: false, servings: 2 })),
   }
 }
 
