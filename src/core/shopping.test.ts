@@ -21,6 +21,8 @@ const dishes: Dish[] = [
     pregnancySafe: true,
     utensils: [],
     category: 'produit-laitier',
+    rating: 'neutral',
+    seasons: [],
     id: 'a',
     name: 'Gratin',
     ingredients: [
@@ -37,6 +39,8 @@ const dishes: Dish[] = [
     pregnancySafe: false,
     utensils: [],
     category: 'feculent',
+    rating: 'neutral',
+    seasons: [],
     id: 'b',
     name: 'Pâtes carbonara',
     ingredients: [

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMenuStore } from '../store/menuStore'
-import type { Dish, Difficulty, IngredientCategory } from '../core/types'
+import type { Dish, Difficulty, DishRating, IngredientCategory } from '../core/types'
 
 const DIFFICULTIES: Difficulty[] = ['facile', 'moyen', 'difficile']
 const CATEGORIES: IngredientCategory[] = [
@@ -25,6 +25,7 @@ export default function DishManager() {
   const [category, setCategory] = useState<IngredientCategory>('legume')
   const [healthy, setHealthy] = useState(false)
   const [pregnancySafe, setPregnancySafe] = useState(true)
+  const [rating, setRating] = useState<DishRating>('neutral')
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -43,6 +44,8 @@ export default function DishManager() {
       pregnancySafe,
       utensils: [],
       category,
+      rating,
+      seasons: [],
     })
     setName('')
     setIngredients('')
@@ -107,6 +110,17 @@ export default function DishManager() {
             />
             Ok grossesse
           </label>
+          <label>
+            Avis
+            <select
+              value={rating}
+              onChange={(event) => setRating(event.target.value as DishRating)}
+            >
+              <option value="favorite">Favori</option>
+              <option value="neutral">Neutre</option>
+              <option value="avoid">À éviter</option>
+            </select>
+          </label>
         </div>
         <button type="submit">Ajouter</button>
       </form>
@@ -116,6 +130,12 @@ export default function DishManager() {
             <span>
               {dish.name}
               {dish.healthy && <span className="badge badge-healthy">healthy</span>}
+              {dish.rating === 'favorite' && (
+                <span className="badge badge-favorite">★ favori</span>
+              )}
+              {dish.rating === 'avoid' && (
+                <span className="badge badge-avoid">à éviter</span>
+              )}
               {!dish.pregnancySafe && (
                 <span className="badge badge-unsafe">à éviter (grossesse)</span>
               )}

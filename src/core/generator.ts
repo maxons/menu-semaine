@@ -1,8 +1,11 @@
 import type { Dish, GenerateOptions, Meal, Menu, WeekConstraint } from './types'
 import { DAYS } from './types'
+import { isDishInSeason, seasonForWeek } from './season'
 
 const HALF_LIFE_DAYS = 14
 const SOFT_PENALTY = 0.2
+const FAVORITE_BOOST = 1.5
+const OFF_SEASON_PENALTY = 0.5
 
 export function dishWeight(dish: Dish, now: Date): number {
   if (dish.lastServedAt === null) return 1
@@ -12,14 +15,18 @@ export function dishWeight(dish: Dish, now: Date): number {
 }
 
 export function satisfiesHardConstraint(dish: Dish, constraint: WeekConstraint): boolean {
+  if (dish.rating === 'avoid') return false
   if (constraint === 'pregnancy') return dish.pregnancySafe
   if (constraint === 'healthy') return dish.healthy
   return true
 }
 
-function softFactor(dish: Dish, constraint: WeekConstraint): number {
-  if (constraint === 'mostly-healthy' && !dish.healthy) return SOFT_PENALTY
-  return 1
+function softFactor(dish: Dish, constraint: WeekConstraint, weekStart: string): number {
+  let factor = 1
+  if (constraint === 'mostly-healthy' && !dish.healthy) factor *= SOFT_PENALTY
+  if (dish.rating === 'favorite') factor *= FAVORITE_BOOST
+  if (!isDishInSeason(dish, seasonForWeek(weekStart))) factor *= OFF_SEASON_PENALTY
+  return factor
 }
 
 function pickWeighted(dishes: Dish[], weights: number[], rng: () => number): Dish {
@@ -58,7 +65,8 @@ export function generateMenu(options: GenerateOptions): Menu {
     }
 
     const weights = available.map(
-      (dish) => dishWeight(dish, now) * softFactor(dish, constraint),
+      (dish) =>
+        dishWeight(dish, now) * softFactor(dish, constraint, currentMenu.weekStart),
     )
     const picked = pickWeighted(available, weights, rng)
     usedDishIds.add(picked.id)

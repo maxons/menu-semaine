@@ -141,6 +141,8 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
       pregnancySafe: catalogDish.pregnancySafe,
       utensils: catalogDish.utensils,
       category: catalogDish.category,
+      rating: 'neutral',
+      seasons: catalogDish.seasons,
     })
   },
 

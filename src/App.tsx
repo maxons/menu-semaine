@@ -3,6 +3,8 @@ import DishManager from './components/DishManager'
 import WeeklyMenu from './components/WeeklyMenu'
 import ShoppingList from './components/ShoppingList'
 import Discoveries from './components/Discoveries'
+import LeftoversAndBudget from './components/LeftoversAndBudget'
+import WeekBanner from './components/WeekBanner'
 import { useMenuStore } from './store/menuStore'
 
 export default function App() {
@@ -20,7 +22,9 @@ export default function App() {
   return (
     <main className="app">
       <h1>🍽️ Menu Semaine</h1>
+      <WeekBanner />
       <WeeklyMenu />
+      <LeftoversAndBudget />
       <div className="columns">
         <DishManager />
         <ShoppingList />

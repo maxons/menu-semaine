@@ -15,6 +15,8 @@ function makeUserDish(overrides: Partial<Dish> = {}): Dish {
     pregnancySafe: true,
     utensils: ['casserole'],
     category: 'feculent',
+    rating: 'neutral',
+    seasons: [],
     ...overrides,
   }
 }
@@ -29,6 +31,7 @@ function makeCatalogDish(overrides: Partial<CatalogDish> = {}): CatalogDish {
     pregnancySafe: true,
     utensils: [],
     category: 'feculent',
+    seasons: [],
     ...overrides,
   }
 }

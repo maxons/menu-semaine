@@ -2,7 +2,12 @@ export interface Ingredient {
   name: string
   quantity: number | null
   unit: string | null
+  priceEur?: number
 }
+
+export type DishRating = 'favorite' | 'neutral' | 'avoid'
+
+export type Season = 'hiver' | 'printemps' | 'ete' | 'automne'
 
 export type Difficulty = 'facile' | 'moyen' | 'difficile'
 
@@ -28,6 +33,8 @@ export interface Dish {
   pregnancySafe: boolean
   utensils: string[]
   category: IngredientCategory
+  rating: DishRating
+  seasons: Season[]
 }
 
 export type DayOfWeek =
@@ -89,6 +96,13 @@ export interface CatalogDish {
   pregnancySafe: boolean
   utensils: string[]
   category: IngredientCategory
+  seasons: Season[]
+}
+
+export const RATING_LABELS: Record<DishRating, string> = {
+  favorite: 'Favori',
+  neutral: 'Neutre',
+  avoid: 'À éviter',
 }
 
 export interface Recommendation {

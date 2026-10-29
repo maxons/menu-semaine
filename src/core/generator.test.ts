@@ -21,6 +21,8 @@ function makeDish(overrides: Partial<Dish> = {}): Dish {
     pregnancySafe: true,
     utensils: [],
     category: 'legume',
+    rating: 'neutral',
+    seasons: [],
     ...overrides,
   }
 }
@@ -152,6 +154,38 @@ describe('contraintes de semaine dans generateMenu', () => {
     })
     const ids = menu.meals.map((m) => m.dishId)
     expect(ids).toContain('j')
+  })
+})
+
+describe('rating et saison dans generateMenu', () => {
+  it('n\'exclut jamais un plat marqué « à éviter »', () => {
+    const dishes = [
+      makeDish({ id: 'a', rating: 'favorite' }),
+      makeDish({ id: 'b', rating: 'avoid' }),
+    ]
+    for (let i = 0; i < 10; i++) {
+      const menu = generateMenu({
+        dishes,
+        currentMenu: emptyMenu(),
+        rng: () => 0.999,
+      })
+      expect(menu.meals.map((m) => m.dishId)).not.toContain('b')
+    }
+  })
+
+  it('booste les favoris', () => {
+    const favorite = makeDish({ id: 'fav', rating: 'favorite' })
+    const neutral = makeDish({ id: 'neu', rating: 'neutral' })
+    const draws = { fav: 0, neu: 0 }
+    for (let i = 0; i < 200; i++) {
+      const menu = generateMenu({
+        dishes: [favorite, neutral],
+        currentMenu: emptyMenu(),
+      })
+      const id = menu.meals.find((m) => m.day === 'lundi')?.dishId
+      if (id) draws[id as 'fav' | 'neu']++
+    }
+    expect(draws.fav).toBeGreaterThan(draws.neu)
   })
 })
 
