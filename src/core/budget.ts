@@ -1,12 +1,24 @@
 import type { Dish, Menu } from './types'
-
-const DEFAULT_PRICE_EUR = 3
+import { estimateIngredientPriceEur } from '../data/prices'
 
 export function estimateDishPrice(dish: Dish): number {
-  const priced = dish.ingredients
-    .map((ingredient) => ingredient.priceEur ?? DEFAULT_PRICE_EUR)
-    .reduce((sum, price) => sum + price, 0)
-  return dish.ingredients.length === 0 ? DEFAULT_PRICE_EUR : priced
+  return round2(
+    dish.ingredients.reduce(
+      (sum, ingredient) =>
+        sum +
+        (ingredient.priceEur ??
+          estimateIngredientPriceEur(
+            ingredient.name,
+            ingredient.quantity,
+            ingredient.unit,
+          )),
+      0,
+    ),
+  )
+}
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100
 }
 
 export interface BudgetSummary {

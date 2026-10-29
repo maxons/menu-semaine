@@ -41,11 +41,11 @@ describe('estimateDishPrice', () => {
     expect(estimateDishPrice(dish())).toBeCloseTo(2.5)
   })
 
-  it('utilise un prix par défaut pour les ingrédients sans prix', () => {
+  it('estime via le dictionnaire de prix pour un ingrédient sans prix explicite', () => {
     const result = estimateDishPrice(
       dish({ ingredients: [{ name: 'ail', quantity: null, unit: null }] }),
     )
-    expect(result).toBe(3)
+    expect(result).toBeCloseTo(0.12)
   })
 })
 
