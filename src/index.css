@@ -281,3 +281,68 @@ input {
   padding: 0.35rem 0;
   border-bottom: 1px solid #f0f1f6;
 }
+
+.catalog-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.catalog-search {
+  flex: 1;
+}
+
+.catalog-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.catalog-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.catalog-card {
+  border: 1px solid #e2e4ee;
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.catalog-card.added {
+  background: #f6faf6;
+  border-color: #cde8cd;
+}
+
+.catalog-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.catalog-card-head h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.catalog-card-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-season {
+  background: #e8f4ff;
+  color: #2a6db5;
+}

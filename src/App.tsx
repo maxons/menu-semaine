@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import DishManager from './components/DishManager'
+import CatalogBrowser from './components/CatalogBrowser'
 import WeeklyMenu from './components/WeeklyMenu'
 import ShoppingList from './components/ShoppingList'
 import Discoveries from './components/Discoveries'
@@ -26,7 +27,10 @@ export default function App() {
       <WeeklyMenu />
       <LeftoversAndBudget />
       <div className="columns">
-        <DishManager />
+        <div>
+          <DishManager />
+          <CatalogBrowser />
+        </div>
         <ShoppingList />
       </div>
       <Discoveries />
