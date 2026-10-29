@@ -16,12 +16,7 @@ export default function ShoppingList() {
           {items.map((item) => (
             <li key={item.name}>
               {item.name}
-              {item.quantity !== null && (
-                <small>
-                  {' '}
-                  ({item.quantity} {item.unit ?? ''})
-                </small>
-              )}
+              {item.display && <small> ({item.display})</small>}
             </li>
           ))}
         </ul>

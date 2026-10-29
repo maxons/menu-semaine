@@ -12,6 +12,21 @@ export function currentWeekStart(now = new Date()): string {
   return date.toISOString().slice(0, 10)
 }
 
+export function addWeeks(weekStart: string, count: number): string {
+  const date = new Date(`${weekStart}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + count * 7)
+  return date.toISOString().slice(0, 10)
+}
+
+export function formatWeekRange(weekStart: string): string {
+  const start = new Date(`${weekStart}T00:00:00Z`)
+  const end = new Date(start)
+  end.setUTCDate(end.getUTCDate() + 6)
+  const fmt = (date: Date) =>
+    date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  return fmt(start) + ' – ' + fmt(end)
+}
+
 function emptyMenu(weekStart: string): Menu {
   return {
     weekStart,
@@ -23,6 +38,7 @@ interface MenuStore {
   dishes: Dish[]
   menu: Menu
   constraint: WeekConstraint
+  knownWeeks: string[]
   storage: StorageAdapter
   hydrated: boolean
   hydrate: () => Promise<void>
@@ -30,16 +46,34 @@ interface MenuStore {
   addCatalogDish: (catalogDish: CatalogDish) => void
   removeDish: (id: string) => void
   setConstraint: (constraint: WeekConstraint) => void
+  goToWeek: (weekStart: string) => Promise<void>
+  goToCurrentWeek: () => Promise<void>
+  copyWeekFrom: (sourceWeekStart: string) => Promise<void>
   generateWeek: () => void
   rerollMeal: (day: Meal['day']) => void
   toggleForce: (day: Meal['day']) => void
   setMealDish: (day: Meal['day'], dishId: string) => void
 }
 
+const KNOWN_WEEKS_KEY = 'menu-semaine:known-weeks'
+
+function loadKnownWeeks(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(KNOWN_WEEKS_KEY) ?? '[]') as string[]
+  } catch {
+    return []
+  }
+}
+
+function saveKnownWeeks(weeks: string[]): void {
+  localStorage.setItem(KNOWN_WEEKS_KEY, JSON.stringify(weeks))
+}
+
 export const useMenuStore = create<MenuStore>((set, get) => ({
   dishes: [],
   menu: emptyMenu(currentWeekStart()),
   constraint: 'none',
+  knownWeeks: [],
   storage: new LocalStorageAdapter(),
   hydrated: false,
 
@@ -52,7 +86,36 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const constraint = (['none', 'pregnancy', 'healthy', 'mostly-healthy'] as const).find(
       (value) => value === storedConstraint,
     )
-    set({ dishes, menu, constraint: constraint ?? 'none', hydrated: true })
+    const knownWeeks = [...new Set([...loadKnownWeeks(), weekStart])].sort()
+    saveKnownWeeks(knownWeeks)
+    set({
+      dishes,
+      menu,
+      constraint: constraint ?? 'none',
+      knownWeeks,
+      hydrated: true,
+    })
+  },
+
+  goToWeek: async (weekStart) => {
+    const { storage } = get()
+    const menu = (await storage.loadMenu(weekStart)) ?? emptyMenu(weekStart)
+    const knownWeeks = [...new Set([...get().knownWeeks, weekStart])].sort()
+    saveKnownWeeks(knownWeeks)
+    set({ menu, knownWeeks })
+  },
+
+  goToCurrentWeek: async () => {
+    await get().goToWeek(currentWeekStart())
+  },
+
+  copyWeekFrom: async (sourceWeekStart) => {
+    const { storage } = get()
+    const source = await storage.loadMenu(sourceWeekStart)
+    if (!source) return
+    const target = { ...get().menu, meals: source.meals }
+    set({ menu: target })
+    await storage.saveMenu(target)
   },
 
   addDish: (input) => {

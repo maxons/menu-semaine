@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
 import { useMenuStore } from '../store/menuStore'
 import { DISH_CATALOG } from '../data/catalog'
-import { graphRecommendations } from '../core/graph'
+import { hybridRecommendations } from '../core/hybrid'
 
 export default function Discoveries() {
   const dishes = useMenuStore((state) => state.dishes)
   const addCatalogDish = useMenuStore((state) => state.addCatalogDish)
 
   const recommendations = useMemo(
-    () => graphRecommendations(dishes, DISH_CATALOG, { limit: 6 }),
+    () => hybridRecommendations(dishes, DISH_CATALOG, { limit: 6 }),
     [dishes],
   )
 
@@ -18,9 +18,9 @@ export default function Discoveries() {
     <section className="panel">
       <h2>Découvertes pour toi</h2>
       <p className="muted">
-        Suggestions basées sur un graphe de similarité entre plats : les plats
-        qui partagent des ingrédients et des types avec ton carnet remontent,
-        avec un boost pour les plats que tu sers souvent.
+        Suggestions hybrides : similarité de composition (graphe de plats) +
+        affinité de profil (difficulté, healthy, habitudes), avec un boost pour
+        les plats que tu sers souvent et une exploration par voisins de voisins.
       </p>
       <div className="discovery-grid">
         {recommendations.map(({ dish, score, reasons }) => (

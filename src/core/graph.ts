@@ -59,6 +59,46 @@ export function buildGraph(catalog: CatalogDish[]): SimilarityGraph {
 export interface GraphRecommendOptions {
   limit?: number
   minSimilarity?: number
+  hops?: number
+  hopDecay?: number
+}
+
+const DEFAULT_HOPS = 2
+const DEFAULT_HOP_DECAY = 0.5
+
+export function propagateScores(
+  seeds: Map<string, number>,
+  graph: SimilarityGraph,
+  options: { hops?: number; hopDecay?: number } = {},
+): Map<string, number> {
+  const { hops = DEFAULT_HOPS, hopDecay = DEFAULT_HOP_DECAY } = options
+  const adjacency = new Map<string, { neighbor: string; weight: number }[]>()
+  for (const edge of graph.edges) {
+    if (!adjacency.has(edge.from)) adjacency.set(edge.from, [])
+    if (!adjacency.has(edge.to)) adjacency.set(edge.to, [])
+    adjacency.get(edge.from)!.push({ neighbor: edge.to, weight: edge.weight })
+    adjacency.get(edge.to)!.push({ neighbor: edge.from, weight: edge.weight })
+  }
+
+  const scores = new Map<string, number>(seeds)
+  let frontier = new Map(seeds)
+  for (let hop = 0; hop < hops; hop++) {
+    const next = new Map<string, number>()
+    for (const [key, score] of frontier) {
+      for (const { neighbor, weight } of adjacency.get(key) ?? []) {
+        const contributed = score * weight * hopDecay
+        if (contributed <= 0) continue
+        next.set(neighbor, (next.get(neighbor) ?? 0) + contributed)
+      }
+    }
+    for (const [key, value] of next) {
+      if (!scores.has(key) || value > scores.get(key)!) {
+        scores.set(key, value)
+      }
+    }
+    frontier = next
+  }
+  return scores
 }
 
 export function graphRecommendations(
@@ -66,7 +106,7 @@ export function graphRecommendations(
   catalog: CatalogDish[],
   options: GraphRecommendOptions = {},
 ): Recommendation[] {
-  const { limit = 6, minSimilarity = 0.1 } = options
+  const { limit = 6, minSimilarity = 0.1, hops = DEFAULT_HOPS, hopDecay = DEFAULT_HOP_DECAY } = options
   if (userDishes.length === 0) {
     return catalog.slice(0, limit).map((dish) => ({
       dish,
@@ -78,9 +118,10 @@ export function graphRecommendations(
   const userNames = new Set(userDishes.map((dish) => normalizeIngredient(dish.name)))
   const scores = new Map<string, { score: number; reasons: string[] }>()
 
-  for (const candidate of catalog) {
-    if (userNames.has(normalizeIngredient(candidate.name))) continue
-
+  const candidates = catalog.filter(
+    (dish) => !userNames.has(normalizeIngredient(dish.name)),
+  )
+  for (const candidate of candidates) {
     let total = 0
     const reasons: { strength: number; text: string }[] = []
 
@@ -111,12 +152,47 @@ export function graphRecommendations(
     1,
   )
 
-  return [...scores.entries()]
-    .map(([name, { score, reasons }]) => ({
+  const direct = new Set(scores.keys())
+
+  const graph = buildGraph(catalog)
+  const seeds = new Map<string, number>()
+  graph.nodes.forEach((node, index) => {
+    if (userNames.has(normalizeIngredient(node.dish.name))) {
+      seeds.set(`c${index}`, 1)
+    }
+  })
+  const propagated = propagateScores(seeds, graph, { hops, hopDecay })
+
+  const propagatedScores = new Map<string, number>()
+  for (const [key, value] of propagated) {
+    const node = graph.nodes.find((n) => n.key === key)
+    if (
+      node &&
+      !direct.has(node.dish.name) &&
+      !userNames.has(normalizeIngredient(node.dish.name))
+    ) {
+      propagatedScores.set(node.dish.name, value)
+    }
+  }
+
+  const maxPropagated = Math.max(1, ...propagatedScores.values())
+  const recommendations: Recommendation[] = [...scores.entries()].map(
+    ([name, { score, reasons }]) => ({
       dish: catalog.find((dish) => dish.name === name) as CatalogDish,
       score: score / maxScore,
       reasons,
-    }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
+    }),
+  )
+
+  for (const [name, value] of propagatedScores) {
+    const dish = catalog.find((d) => d.name === name)
+    if (!dish) continue
+    recommendations.push({
+      dish,
+      score: 0.5 * (value / maxPropagated),
+      reasons: ['Découvert par proximité dans le graphe (voisin de voisins de ton carnet)'],
+    })
+  }
+
+  return recommendations.sort((a, b) => b.score - a.score).slice(0, limit)
 }

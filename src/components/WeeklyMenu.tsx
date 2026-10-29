@@ -1,4 +1,4 @@
-import { useMenuStore } from '../store/menuStore'
+import { useMenuStore, addWeeks, formatWeekRange } from '../store/menuStore'
 import { DAYS, WEEK_CONSTRAINT_LABELS } from '../core/types'
 import type { WeekConstraint } from '../core/types'
 
@@ -6,19 +6,51 @@ export default function WeeklyMenu() {
   const menu = useMenuStore((state) => state.menu)
   const dishes = useMenuStore((state) => state.dishes)
   const constraint = useMenuStore((state) => state.constraint)
+  const knownWeeks = useMenuStore((state) => state.knownWeeks)
   const setConstraint = useMenuStore((state) => state.setConstraint)
   const generateWeek = useMenuStore((state) => state.generateWeek)
   const rerollMeal = useMenuStore((state) => state.rerollMeal)
   const toggleForce = useMenuStore((state) => state.toggleForce)
   const setMealDish = useMenuStore((state) => state.setMealDish)
+  const goToWeek = useMenuStore((state) => state.goToWeek)
+  const copyWeekFrom = useMenuStore((state) => state.copyWeekFrom)
 
   const dishById = new Map(dishes.map((dish) => [dish.id, dish]))
+  const pastWeeks = knownWeeks.filter((week) => week < menu.weekStart).slice(-8)
 
   return (
     <section className="panel">
+      <div className="week-nav">
+        <button onClick={() => void goToWeek(addWeeks(menu.weekStart, -1))}>
+          ← Semaine précédente
+        </button>
+        <strong>{formatWeekRange(menu.weekStart)}</strong>
+        <button onClick={() => void goToWeek(addWeeks(menu.weekStart, 1))}>
+          Semaine suivante →
+        </button>
+      </div>
       <div className="menu-header">
-        <h2>Menu de la semaine ({menu.weekStart})</h2>
+        <h2>Menu de la semaine</h2>
         <div className="menu-actions">
+          {pastWeeks.length > 0 && (
+            <select
+              defaultValue=""
+              onChange={(event) => {
+                if (event.target.value) {
+                  void copyWeekFrom(event.target.value)
+                  event.target.value = ''
+                }
+              }}
+              title="Copier une semaine passée"
+            >
+              <option value="">Copier une semaine passée…</option>
+              {pastWeeks.map((week) => (
+                <option key={week} value={week}>
+                  {formatWeekRange(week)}
+                </option>
+              ))}
+            </select>
+          )}
           <select
             value={constraint}
             onChange={(event) =>

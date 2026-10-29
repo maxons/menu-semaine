@@ -210,6 +210,13 @@ input {
   align-items: center;
 }
 
+.week-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
 .menu-actions {
   display: flex;
   gap: 0.5rem;
