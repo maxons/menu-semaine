@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
 import { useMenuStore } from '../store/menuStore'
 import { DISH_CATALOG } from '../data/catalog'
-import { recommendDishes } from '../core/recommendation'
+import { graphRecommendations } from '../core/graph'
 
 export default function Discoveries() {
   const dishes = useMenuStore((state) => state.dishes)
   const addCatalogDish = useMenuStore((state) => state.addCatalogDish)
 
   const recommendations = useMemo(
-    () => recommendDishes(DISH_CATALOG, dishes, { limit: 6 }),
+    () => graphRecommendations(dishes, DISH_CATALOG, { limit: 6 }),
     [dishes],
   )
 
@@ -18,8 +18,9 @@ export default function Discoveries() {
     <section className="panel">
       <h2>Découvertes pour toi</h2>
       <p className="muted">
-        Suggestions basées sur la composition de tes plats, leur facilité et
-        leur côté healthy.
+        Suggestions basées sur un graphe de similarité entre plats : les plats
+        qui partagent des ingrédients et des types avec ton carnet remontent,
+        avec un boost pour les plats que tu sers souvent.
       </p>
       <div className="discovery-grid">
         {recommendations.map(({ dish, score, reasons }) => (

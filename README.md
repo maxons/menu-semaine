@@ -55,8 +55,15 @@ Capacitor) sans toucher aux composants.
 
 ### Recommandations
 
-`core/recommendation.ts` construit un profil de goût (fréquence des ingrédients,
-répartition des catégories, difficulté moyenne, part healthy, ustensiles) puis
-score chaque plat du catalogue local (`data/catalog.ts`, ~50 plats français) par
-similarité. Les poids sont ajustables (`DEFAULT_WEIGHTS`). Le catalogue est une
-donnée embarquée remplaçable par une API via le même pattern adaptateur.
+`core/graph.ts` construit un **graphe de similarité** entre plats : chaque paire
+de plats est reliée par une arête pondérée (similarité Jaccard des ingrédients
++ bonus même catégorie). La recommandation propage les goûts le long du
+graphe : un plat du catalogue est recommandé s'il est proche de plats de ton
+carnet, avec un boost selon la fréquence réelle de consommation (`timesServed`)
+et des explications (« Proche de « Risotto » (62% de similarité) »).
+
+`core/recommendation.ts` conserve un scoring par profil de goût (fréquence des
+ingrédients, catégories, difficulté, healthy, ustensiles) — les deux approches
+sont destinées à être fusionnées. Le catalogue local (`data/catalog.ts`, ~50
+plats français) est une donnée embarquée remplaçable par une API via le même
+pattern adaptateur.
