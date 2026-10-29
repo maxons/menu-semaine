@@ -16,6 +16,11 @@ function menuWith(dishIds: (string | null)[]): Menu {
 
 const dishes: Dish[] = [
   {
+    difficulty: 'facile',
+    healthy: false,
+    pregnancySafe: true,
+    utensils: [],
+    category: 'produit-laitier',
     id: 'a',
     name: 'Gratin',
     ingredients: [
@@ -27,6 +32,11 @@ const dishes: Dish[] = [
     timesServed: 0,
   },
   {
+    difficulty: 'facile',
+    healthy: false,
+    pregnancySafe: false,
+    utensils: [],
+    category: 'feculent',
     id: 'b',
     name: 'Pâtes carbonara',
     ingredients: [

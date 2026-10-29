@@ -1,0 +1,72 @@
+import type { CatalogDish, Ingredient } from '../core/types'
+
+function ing(name: string, quantity: number | null = null, unit: string | null = null): Ingredient {
+  return { name, quantity, unit }
+}
+
+function dish(
+  name: string,
+  ingredients: Ingredient[],
+  tags: string[],
+  difficulty: CatalogDish['difficulty'],
+  healthy: boolean,
+  pregnancySafe: boolean,
+  utensils: string[],
+  category: CatalogDish['category'],
+): CatalogDish {
+  return { name, ingredients, tags, difficulty, healthy, pregnancySafe, utensils, category }
+}
+
+export const DISH_CATALOG: CatalogDish[] = [
+  dish('Pâtes carbonara', [ing('pâtes', 500, 'g'), ing('lardons', 200, 'g'), ing('crème', 20, 'cl'), ing('parmesan'), ing('œufs', 2)], ['plats-unicités', 'rapide'], 'facile', false, false, ['casserole', 'poêle'], 'feculent'),
+  dish('Gratin dauphinois', [ing('pommes de terre', 1, 'kg'), ing('crème', 50, 'cl'), ing('ail'), ing('fromage', 100, 'g')], ['comfort-food'], 'facile', false, true, ['four', 'plat à gratin'], 'produit-laitier'),
+  dish('Risotto aux champignons', [ing('riz arborio', 300, 'g'), ing('champignons', 250, 'g'), ing('oignon'), ing('bouillon', 1, 'l'), ing('parmesan')], [], 'moyen', false, true, ['casserole'], 'feculent'),
+  dish('Poulet rôti et légumes', [ing('poulet', 1), ing('pommes de terre', 800, 'g'), ing('carottes', 4), ing('thym')], ['four'], 'facile', true, true, ['four', 'plat à rôtir'], 'viande'),
+  dish('Salade de quinoa', [ing('quinoa', 200, 'g'), ing('concombre'), ing('tomates cerises', 250, 'g'), ing('feta', 100, 'g'), ing('citron')], ['froid', 'végé', 'rapide'], 'facile', true, false, ['casserole', 'saladier'], 'legume'),
+  dish('Curry de poulet au lait de coco', [ing('poulet', 500, 'g'), ing('lait de coco', 40, 'cl'), ing('oignon'), ing('curry'), ing('riz', 250, 'g')], ['épicé', 'exotique'], 'facile', true, true, ['casserole'], 'viande'),
+  dish('Chili sin carne', [ing('haricots rouges', 400, 'g'), ing('tomates concassées', 400, 'g'), ing('oignon'), ing('poivron'), ing('maïs', 150, 'g'), ing('épices chili')], ['épicé', 'végé'], 'facile', true, true, ['casserole'], 'legume'),
+  dish('Tartiflette', [ing('pommes de terre', 1, 'kg'), ing('reblochon', 1), ing('lardons', 200, 'g'), ing('oignon')], ['comfort-food', 'hiver'], 'facile', false, false, ['four', 'plat à gratin'], 'produit-laitier'),
+  dish('Omelette aux champignons', [ing('œufs', 4), ing('champignons', 200, 'g'), ing('persil')], ['rapide', 'végé', 'léger'], 'facile', true, true, ['poêle'], 'oeuf'),
+  dish('Saumon en papillote', [ing('saumon', 2), ing('courgette'), ing('citron'), ing('aneth')], ['léger', 'poisson'], 'facile', true, false, ['four', 'papillote'], 'poisson'),
+  dish('Bœuf bourguignon', [ing('bœuf', 800, 'g'), ing('lardons', 150, 'g'), ing('carottes', 3), ing('oignon'), ing('vin rouge', 50, 'cl')], ['classique', 'mijoté'], 'difficile', false, false, ['cocotte'], 'viande'),
+  dish('Poisson pané et purée', [ing('filet de poisson', 2), ing('pommes de terre', 800, 'g'), ing('lait', 25, 'cl'), ing('chapelure')], ['enfants', 'rapide'], 'facile', false, true, ['four', 'casserole'], 'poisson'),
+  dish('Wok de poulet et légumes', [ing('poulet', 400, 'g'), ing('brocoli'), ing('poivron'), ing('sauce soja'), ing('nouilles', 250, 'g')], ['rapide', 'asiatique'], 'facile', true, true, ['wok'], 'viande'),
+  dish('Lasagnes à la bolognaise', [ing('pâtes à lasagne', 500, 'g'), ing('bœuf haché', 500, 'g'), ing('tomates concassées', 500, 'g'), ing('béchamel', 50, 'cl'), ing('fromage', 150, 'g')], ['comfort-food', 'familial'], 'moyen', false, false, ['four', 'plat à gratin'], 'feculent'),
+  dish('Soupe de lentilles corail', [ing('lentilles corail', 250, 'g'), ing('oignon'), ing('carottes', 2), ing('cumin'), ing('lait de coco', 20, 'cl')], ['végé', 'léger', 'hiver'], 'facile', true, true, ['casserole', 'mixeur'], 'legume'),
+  dish('Blanquette de veau', [ing('veau', 800, 'g'), ing('champignons', 250, 'g'), ing('carottes', 3), ing('crème', 20, 'cl'), ing('bouillon', 1, 'l')], ['classique', 'mijoté'], 'difficile', false, true, ['cocotte'], 'viande'),
+  dish('Pizzas maison', [ing('pâte à pizza', 2), ing('tomates concassées', 400, 'g'), ing('mozzarella', 250, 'g'), ing('jambon'), ing('champignons', 150, 'g')], ['familial', 'convivial'], 'moyen', false, false, ['four', 'rouleau'], 'feculent'),
+  dish('Buddha bowl veggie', [ing('riz complet', 200, 'g'), ing('pois chiches', 400, 'g'), ing('avocat'), ing('carottes', 2), ing('houmous', 100, 'g')], ['healthy', 'végé'], 'facile', true, true, ['casserole', 'saladier'], 'legume'),
+  dish('Pâtes pesto et tomates', [ing('pâtes', 400, 'g'), ing('pesto', 100, 'g'), ing('tomates cerises', 250, 'g'), ing('parmesan')], ['rapide', 'végé'], 'facile', true, true, ['casserole'], 'feculent'),
+  dish('Rôti de porc aux pruneaux', [ing('rôti de porc', 1), ing('pruneaux', 200, 'g'), ing('oignon'), ing('bouillon', 50, 'cl')], ['mijoté', 'classique'], 'moyen', false, true, ['cocotte', 'four'], 'viande'),
+  dish('Tarte salée aux légumes', [ing('pâte brisée', 1), ing('courgette'), ing('tomates', 2), ing('œufs', 3), ing('crème', 20, 'cl')], ['végé', 'familial'], 'facile', true, true, ['four', 'moule à tarte'], 'legume'),
+  dish('Pad thai aux crevettes', [ing('nouilles de riz', 250, 'g'), ing('crevettes', 300, 'g'), ing('œufs', 2), ing('cacahuètes', 50, 'g'), ing('sauce soja')], ['asiatique', 'rapide'], 'moyen', true, false, ['wok'], 'poisson'),
+  dish('Croque-monsieur', [ing('pain de mie', 8), ing('jambon', 4), ing('fromage', 150, 'g'), ing('béchamel', 20, 'cl')], ['rapide', 'enfants'], 'facile', false, false, ['four', 'poêle'], 'produit-laitier'),
+  dish('Velouté de courgettes', [ing('courgettes', 3), ing('oignon'), ing('bouillon', 1, 'l'), ing('crème', 10, 'cl')], ['léger', 'hiver', 'végé'], 'facile', true, true, ['casserole', 'mixeur'], 'legume'),
+  dish('Poulet au citron', [ing('poulet', 4), ing('citron', 2), ing('ail'), ing('thym'), ing('pommes de terre', 600, 'g')], ['four'], 'facile', true, true, ['four', 'plat à rôtir'], 'viande'),
+  dish('Burger maison', [ing('pain à burger', 4), ing('bœuf haché', 500, 'g'), ing('fromage', 4), ing('tomates', 2), ing('salade')], ['convivial', 'enfants'], 'facile', false, false, ['poêle'], 'viande'),
+  dish('Salade de pâtes grecque', [ing('pâtes', 300, 'g'), ing('concombre'), ing('tomates', 3), ing('feta', 150, 'g'), ing('olives', 80, 'g')], ['froid', 'végé', 'été'], 'facile', true, false, ['casserole', 'saladier'], 'feculent'),
+  dish('Cassoulet', [ing('haricots blancs', 500, 'g'), ing('confit de canard', 2), ing('saucisse de Toulouse', 4), ing('lardons', 200, 'g')], ['mijoté', 'hiver', 'comfort-food'], 'difficile', false, false, ['cocotte'], 'viande'),
+  dish('Poisson à la provençale', [ing('filet de poisson', 2), ing('tomates concassées', 400, 'g'), ing('olives', 100, 'g'), ing('ail'), ing('herbes de Provence')], ['poisson', 'été'], 'facile', true, true, ['poêle'], 'poisson'),
+  dish('Gnocchi à la sauge', [ing('gnocchi', 500, 'g'), ing('beurre', 50, 'g'), ing('sauge'), ing('parmesan')], ['rapide', 'végé'], 'facile', false, true, ['poêle'], 'feculent'),
+  dish('Chili con carne', [ing('bœuf haché', 500, 'g'), ing('haricots rouges', 400, 'g'), ing('tomates concassées', 400, 'g'), ing('oignon'), ing('épices chili')], ['épicé', 'comfort-food'], 'facile', false, false, ['casserole'], 'viande'),
+  dish('Ratatouille et riz', [ing('aubergine'), ing('courgettes', 2), ing('poivron'), ing('tomates', 4), ing('riz', 250, 'g')], ['végé', 'été'], 'moyen', true, true, ['casserole'], 'legume'),
+  dish('Quiche lorraine', [ing('pâte brisée', 1), ing('lardons', 200, 'g'), ing('œufs', 3), ing('crème', 20, 'cl')], ['classique', 'familial'], 'facile', false, false, ['four', 'moule à tarte'], 'produit-laitier'),
+  dish('Papillote de poulet aux légumes', [ing('poulet', 2), ing('carottes', 2), ing('courgette'), ing('herbes')], ['léger'], 'facile', true, true, ['four', 'papillote'], 'viande'),
+  dish('Salade César', [ing('poulet', 2), ing('salade romaine', 1), ing('parmesan', 50, 'g'), ing('pain', 4), ing('sauce César')], ['froid', 'rapide'], 'facile', false, true, ['saladier'], 'viande'),
+  dish('Couscous aux légumes', [ing('semoule', 300, 'g'), ing('carottes', 3), ing('navets', 2), ing('pois chiches', 400, 'g'), ing('épices ras-el-hanout')], ['végé', 'convivial'], 'moyen', true, true, ['couscoussier'], 'legume'),
+  dish('Nuggets de poulet maison', [ing('poulet', 500, 'g'), ing('chapelure', 150, 'g'), ing('œufs', 2), ing('farine', 100, 'g')], ['enfants'], 'moyen', false, true, ['four'], 'viande'),
+  dish('Pâtes aux brocolis', [ing('pâtes', 400, 'g'), ing('brocoli'), ing('ail'), ing('parmesan')], ['rapide', 'végé'], 'facile', true, true, ['casserole'], 'feculent'),
+  dish('Sole meunière', [ing('sole', 2), ing('beurre', 60, 'g'), ing('citron', 1), ing('persil')], ['poisson', 'classique'], 'moyen', false, true, ['poêle'], 'poisson'),
+  dish('Poke bowl saumon', [ing('riz', 200, 'g'), ing('saumon', 200, 'g'), ing('avocat'), ing('concombre'), ing('edamame', 100, 'g')], ['healthy', 'froid'], 'facile', true, false, ['casserole', 'saladier'], 'poisson'),
+  dish('Hachis parmentier', [ing('bœuf haché', 600, 'g'), ing('pommes de terre', 1, 'kg'), ing('oignon'), ing('lait', 25, 'cl'), ing('fromage', 100, 'g')], ['comfort-food', 'familial'], 'moyen', false, false, ['four', 'plat à gratin'], 'viande'),
+  dish("Soupe à l'oignon", [ing('oignons', 5), ing('bouillon', 1, 'l'), ing('pain', 4), ing('fromage', 100, 'g')], ['hiver', 'classique', 'végé'], 'facile', false, true, ['casserole'], 'legume'),
+  dish('Escalope milanaise', [ing('escalope de veau', 2), ing('chapelure', 100, 'g'), ing('œufs', 2), ing('tomates', 2) ], ['enfants'], 'moyen', false, true, ['poêle'], 'viande'),
+  dish('Fajitas au poulet', [ing('tortillas', 8), ing('poulet', 400, 'g'), ing('poivron'), ing('oignon'), ing('épices fajitas')], ['convivial', 'rapide'], 'facile', true, true, ['poêle'], 'viande'),
+  dish('Riz cantonais', [ing('riz', 300, 'g'), ing('œufs', 3), ing('jambon', 100, 'g'), ing('petits pois', 150, 'g')], ['rapide', 'asiatique'], 'facile', false, false, ['wok'], 'feculent'),
+  dish('Moules marinière', [ing('moules', 1, 'kg'), ing('oignon'), ing('persil'), ing('vin blanc', 20, 'cl')], ['poisson', 'rapide'], 'facile', true, false, ['casserole'], 'poisson'),
+  dish('Gratin de pâtes au thon', [ing('pâtes', 400, 'g'), ing('thon', 200, 'g'), ing('tomates concassées', 400, 'g'), ing('fromage', 100, 'g')], ['rapide', 'familial'], 'facile', false, false, ['four', 'plat à gratin'], 'poisson'),
+  dish('Poulet au curry et pommes de terre', [ing('poulet', 500, 'g'), ing('pommes de terre', 600, 'g'), ing('curry'), ing('lait de coco', 20, 'cl')], ['épicé'], 'facile', true, true, ['casserole'], 'viande'),
+  dish('Salade de lentilles et feta', [ing('lentilles', 250, 'g'), ing('feta', 100, 'g'), ing('tomates', 2), ing('oignon rouge'), ing('persil')], ['végé', 'froid', 'healthy'], 'facile', true, false, ['saladier'], 'legume'),
+  dish('Tacos de poisson', [ing('tortillas', 8), ing('filet de poisson', 400, 'g'), ing('chou rouge'), ing('citron'), ing('crème', 10, 'cl')], ['poisson', 'convivial'], 'facile', true, true, ['poêle'], 'poisson'),
+  dish('Tagliatelles aux crevettes', [ing('tagliatelles', 400, 'g'), ing('crevettes', 300, 'g'), ing('crème', 20, 'cl'), ing('ail'), ing('persil')], ['poisson'], 'facile', false, false, ['poêle', 'casserole'], 'poisson'),
+]

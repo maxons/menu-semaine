@@ -1,13 +1,25 @@
-import type { Dish, GenerateOptions, Meal, Menu } from './types'
+import type { Dish, GenerateOptions, Meal, Menu, WeekConstraint } from './types'
 import { DAYS } from './types'
 
 const HALF_LIFE_DAYS = 14
+const SOFT_PENALTY = 0.2
 
 export function dishWeight(dish: Dish, now: Date): number {
   if (dish.lastServedAt === null) return 1
   const last = new Date(dish.lastServedAt).getTime()
   const days = Math.max(0, (now.getTime() - last) / (1000 * 60 * 60 * 24))
   return 0.05 + 0.95 * (1 - Math.pow(0.5, days / HALF_LIFE_DAYS))
+}
+
+export function satisfiesHardConstraint(dish: Dish, constraint: WeekConstraint): boolean {
+  if (constraint === 'pregnancy') return dish.pregnancySafe
+  if (constraint === 'healthy') return dish.healthy
+  return true
+}
+
+function softFactor(dish: Dish, constraint: WeekConstraint): number {
+  if (constraint === 'mostly-healthy' && !dish.healthy) return SOFT_PENALTY
+  return 1
 }
 
 function pickWeighted(dishes: Dish[], weights: number[], rng: () => number): Dish {
@@ -21,7 +33,7 @@ function pickWeighted(dishes: Dish[], weights: number[], rng: () => number): Dis
 }
 
 export function generateMenu(options: GenerateOptions): Menu {
-  const { dishes, currentMenu, rng = Math.random } = options
+  const { dishes, currentMenu, rng = Math.random, constraint = 'none' } = options
   const now = new Date()
 
   const mealsByDay = new Map(currentMenu.meals.map((meal) => [meal.day, meal]))
@@ -37,14 +49,17 @@ export function generateMenu(options: GenerateOptions): Menu {
 
     const available = dishes.filter(
       (dish) =>
-        !usedDishIds.has(dish.id) ||
-        (existing?.dishId === dish.id && existing.forced),
+        (!usedDishIds.has(dish.id) ||
+          (existing?.dishId === dish.id && existing.forced)) &&
+        satisfiesHardConstraint(dish, constraint),
     )
     if (available.length === 0) {
       return { day, dishId: existing?.dishId ?? null, forced: false }
     }
 
-    const weights = available.map((dish) => dishWeight(dish, now))
+    const weights = available.map(
+      (dish) => dishWeight(dish, now) * softFactor(dish, constraint),
+    )
     const picked = pickWeighted(available, weights, rng)
     usedDishIds.add(picked.id)
     return { day, dishId: picked.id, forced: false }

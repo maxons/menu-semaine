@@ -1,9 +1,12 @@
 import { useMenuStore } from '../store/menuStore'
-import { DAYS } from '../core/types'
+import { DAYS, WEEK_CONSTRAINT_LABELS } from '../core/types'
+import type { WeekConstraint } from '../core/types'
 
 export default function WeeklyMenu() {
   const menu = useMenuStore((state) => state.menu)
   const dishes = useMenuStore((state) => state.dishes)
+  const constraint = useMenuStore((state) => state.constraint)
+  const setConstraint = useMenuStore((state) => state.setConstraint)
   const generateWeek = useMenuStore((state) => state.generateWeek)
   const rerollMeal = useMenuStore((state) => state.rerollMeal)
   const toggleForce = useMenuStore((state) => state.toggleForce)
@@ -15,9 +18,26 @@ export default function WeeklyMenu() {
     <section className="panel">
       <div className="menu-header">
         <h2>Menu de la semaine ({menu.weekStart})</h2>
-        <button className="primary" onClick={generateWeek}>
-          Générer la semaine
-        </button>
+        <div className="menu-actions">
+          <select
+            value={constraint}
+            onChange={(event) =>
+              setConstraint(event.target.value as WeekConstraint)
+            }
+            title="Contrainte de la semaine"
+          >
+            {(Object.keys(WEEK_CONSTRAINT_LABELS) as WeekConstraint[]).map(
+              (value) => (
+                <option key={value} value={value}>
+                  {WEEK_CONSTRAINT_LABELS[value]}
+                </option>
+              ),
+            )}
+          </select>
+          <button className="primary" onClick={generateWeek}>
+            Générer la semaine
+          </button>
+        </div>
       </div>
       <div className="menu-grid">
         {DAYS.map((day) => {

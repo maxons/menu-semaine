@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Dish, Meal, Menu } from '../core/types'
+import type { CatalogDish, Dish, Meal, Menu, WeekConstraint } from '../core/types'
 import { DAYS } from '../core/types'
 import { generateMenu, updateDishStats } from '../core/generator'
 import type { StorageAdapter } from '../core/storage'
@@ -22,11 +22,14 @@ function emptyMenu(weekStart: string): Menu {
 interface MenuStore {
   dishes: Dish[]
   menu: Menu
+  constraint: WeekConstraint
   storage: StorageAdapter
   hydrated: boolean
   hydrate: () => Promise<void>
   addDish: (dish: Omit<Dish, 'id' | 'lastServedAt' | 'timesServed'>) => void
+  addCatalogDish: (catalogDish: CatalogDish) => void
   removeDish: (id: string) => void
+  setConstraint: (constraint: WeekConstraint) => void
   generateWeek: () => void
   rerollMeal: (day: Meal['day']) => void
   toggleForce: (day: Meal['day']) => void
@@ -36,6 +39,7 @@ interface MenuStore {
 export const useMenuStore = create<MenuStore>((set, get) => ({
   dishes: [],
   menu: emptyMenu(currentWeekStart()),
+  constraint: 'none',
   storage: new LocalStorageAdapter(),
   hydrated: false,
 
@@ -44,7 +48,11 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const weekStart = currentWeekStart()
     const dishes = await storage.loadDishes()
     const menu = (await storage.loadMenu(weekStart)) ?? emptyMenu(weekStart)
-    set({ dishes, menu, hydrated: true })
+    const storedConstraint = localStorage.getItem('menu-semaine:constraint')
+    const constraint = (['none', 'pregnancy', 'healthy', 'mostly-healthy'] as const).find(
+      (value) => value === storedConstraint,
+    )
+    set({ dishes, menu, constraint: constraint ?? 'none', hydrated: true })
   },
 
   addDish: (input) => {
@@ -57,6 +65,25 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const dishes = [...get().dishes, dish]
     set({ dishes })
     void get().storage.saveDishes(dishes)
+  },
+
+  addCatalogDish: (catalogDish) => {
+    if (get().dishes.some((d) => d.name === catalogDish.name)) return
+    get().addDish({
+      name: catalogDish.name,
+      ingredients: catalogDish.ingredients,
+      tags: catalogDish.tags,
+      difficulty: catalogDish.difficulty,
+      healthy: catalogDish.healthy,
+      pregnancySafe: catalogDish.pregnancySafe,
+      utensils: catalogDish.utensils,
+      category: catalogDish.category,
+    })
+  },
+
+  setConstraint: (constraint) => {
+    set({ constraint })
+    localStorage.setItem('menu-semaine:constraint', constraint)
   },
 
   removeDish: (id) => {
@@ -73,8 +100,8 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   },
 
   generateWeek: () => {
-    const { dishes, menu } = get()
-    const nextMenu = generateMenu({ dishes, currentMenu: menu })
+    const { dishes, menu, constraint } = get()
+    const nextMenu = generateMenu({ dishes, currentMenu: menu, constraint })
     const nextDishes = updateDishStats(dishes, nextMenu)
     set({ menu: nextMenu, dishes: nextDishes })
     void get().storage.saveMenu(nextMenu)
@@ -82,7 +109,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   },
 
   rerollMeal: (day) => {
-    const { dishes, menu } = get()
+    const { dishes, menu, constraint } = get()
     const target = menu.meals.find((meal) => meal.day === day)
     if (!target) return
 
@@ -94,7 +121,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
         { day, dishId: null, forced: false },
       ],
     }
-    const [nextMeal] = generateMenu({ dishes, currentMenu: tempMenu }).meals.filter(
+    const [nextMeal] = generateMenu({ dishes, currentMenu: tempMenu, constraint }).meals.filter(
       (meal) => meal.day === day,
     )
     const meals = menu.meals.map((meal) =>

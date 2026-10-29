@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { dishWeight, generateMenu, updateDishStats } from './generator'
+import {
+  dishWeight,
+  generateMenu,
+  satisfiesHardConstraint,
+  updateDishStats,
+} from './generator'
 import type { Dish, Menu } from './types'
 import { DAYS } from './types'
 
@@ -11,6 +16,11 @@ function makeDish(overrides: Partial<Dish> = {}): Dish {
     tags: [],
     lastServedAt: null,
     timesServed: 0,
+    difficulty: 'facile',
+    healthy: true,
+    pregnancySafe: true,
+    utensils: [],
+    category: 'legume',
     ...overrides,
   }
 }
@@ -72,6 +82,76 @@ describe('generateMenu', () => {
   it('laisse le repas vide si aucun plat disponible', () => {
     const menu = generateMenu({ dishes: [], currentMenu: emptyMenu() })
     expect(menu.meals.every((m) => m.dishId === null)).toBe(true)
+  })
+})
+
+describe('satisfiesHardConstraint', () => {
+  it('filtre les plats non sûrs en contrainte grossesse', () => {
+    const safe = makeDish({ id: 'safe', pregnancySafe: true })
+    const unsafe = makeDish({ id: 'unsafe', pregnancySafe: false })
+    expect(satisfiesHardConstraint(safe, 'pregnancy')).toBe(true)
+    expect(satisfiesHardConstraint(unsafe, 'pregnancy')).toBe(false)
+  })
+
+  it('filtre les plats non healthy en contrainte healthy', () => {
+    const healthy = makeDish({ id: 'h', healthy: true })
+    const indulgent = makeDish({ id: 'i', healthy: false })
+    expect(satisfiesHardConstraint(healthy, 'healthy')).toBe(true)
+    expect(satisfiesHardConstraint(indulgent, 'healthy')).toBe(false)
+  })
+
+  it('accepte tout en semaine normale', () => {
+    expect(satisfiesHardConstraint(makeDish({ healthy: false }), 'none')).toBe(true)
+  })
+})
+
+describe('contraintes de semaine dans generateMenu', () => {
+  it('contrainte grossesse : ne tire que des plats sûrs', () => {
+    const dishes = [
+      makeDish({ id: 'a', pregnancySafe: true }),
+      makeDish({ id: 'b', pregnancySafe: false }),
+    ]
+    for (let i = 0; i < 20; i++) {
+      const menu = generateMenu({
+        dishes,
+        currentMenu: emptyMenu(),
+        rng: () => 0.99,
+        constraint: 'pregnancy',
+      })
+      const ids = menu.meals.map((m) => m.dishId)
+      expect(ids).not.toContain('b')
+      expect(new Set(ids.filter(Boolean))).toEqual(new Set(['a']))
+    }
+  })
+
+  it('contrainte healthy : ne tire que des plats healthy', () => {
+    const dishes = [
+      makeDish({ id: 'a', healthy: true }),
+      makeDish({ id: 'b', healthy: false }),
+    ]
+    const menu = generateMenu({
+      dishes,
+      currentMenu: emptyMenu(),
+      rng: () => 0.5,
+      constraint: 'healthy',
+    })
+    expect(menu.meals.map((m) => m.dishId)).not.toContain('b')
+  })
+
+  it('contrainte mostly-healthy : favorise mais n\'exclut pas', () => {
+    const healthyDishes = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7'].map((id) =>
+      makeDish({ id, healthy: true }),
+    )
+    const indulgent = makeDish({ id: 'j', healthy: false })
+    const dishes = [...healthyDishes, indulgent]
+    const menu = generateMenu({
+      dishes,
+      currentMenu: emptyMenu(),
+      rng: () => 0.999,
+      constraint: 'mostly-healthy',
+    })
+    const ids = menu.meals.map((m) => m.dishId)
+    expect(ids).toContain('j')
   })
 })
 

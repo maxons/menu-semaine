@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import DishManager from './components/DishManager'
 import WeeklyMenu from './components/WeeklyMenu'
 import ShoppingList from './components/ShoppingList'
+import Discoveries from './components/Discoveries'
 import { useMenuStore } from './store/menuStore'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
         <DishManager />
         <ShoppingList />
       </div>
+      <Discoveries />
     </main>
   )
 }
